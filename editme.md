@@ -1,88 +1,153 @@
-Project Hierarchy and UI Overview
-css
-Copy
-hiennguyen26-hien-website/
-├── components.json
-├── globals.css
-├── next.config.mjs
-├── package.json
-├── page.tsx
-├── postcss.config.mjs
-├── tailwind.config.ts
-├── tsconfig.json
-├── types.ts
+# Project Hierarchy and UI Overview
+
+## Directory Structure
+```
+hien-website/
 ├── app/
+│   ├── api/
+│   │   └── views/              # View tracking API endpoints
+│   │       ├── route.ts        # POST: record views, GET: all views
+│   │       └── [slug]/
+│   │           └── route.ts    # GET: specific post analytics
 │   ├── globals.css
 │   ├── layout.tsx
 │   └── page.tsx
 ├── components/
+│   ├── content/               # Content directory
+│   │   ├── blog/             # Blog post markdown files
+│   │   │   └── *.md
+│   │   └── projects/         # Project markdown files
+│   │       └── *.md
 │   ├── BlogPost.tsx
 │   ├── Button.tsx
 │   ├── ChatBubble.tsx
 │   ├── ContactForm.tsx
 │   ├── Navigation.tsx
 │   ├── Project.tsx
-│   ├── theme-provider.tsx
-│   └── ui/
-│       ├── accordion.tsx
-│       ├── alert-dialog.tsx
-│       ├── alert.tsx
-│       ├── aspect-ratio.tsx
-│       ├── avatar.tsx
-│       ├── badge.tsx
-│       ├── breadcrumb.tsx
-│       ├── button.tsx
-│       ├── calendar.tsx
-│       ├── card.tsx
-│       ├── carousel.tsx
-│       ├── chart.tsx
-│       ├── checkbox.tsx
-│       ├── collapsible.tsx
-│       ├── command.tsx
-│       ├── context-menu.tsx
-│       ├── dialog.tsx
-│       ├── drawer.tsx
-│       ├── dropdown-menu.tsx
-│       ├── form.tsx
-│       ├── hover-card.tsx
-│       ├── input-otp.tsx
-│       ├── input.tsx
-│       ├── label.tsx
-│       ├── menubar.tsx
-│       ├── navigation-menu.tsx
-│       ├── pagination.tsx
-│       ├── popover.tsx
-│       ├── progress.tsx
-│       ├── radio-group.tsx
-│       ├── resizable.tsx
-│       ├── scroll-area.tsx
-│       ├── select.tsx
-│       ├── separator.tsx
-│       ├── sheet.tsx
-│       ├── sidebar.tsx
-│       ├── skeleton.tsx
-│       ├── slider.tsx
-│       ├── sonner.tsx
-│       ├── switch.tsx
-│       ├── table.tsx
-│       ├── tabs.tsx
-│       ├── textarea.tsx
-│       ├── toast.tsx
-│       ├── toaster.tsx
-│       ├── toggle-group.tsx
-│       ├── toggle.tsx
-│       └── tooltip.tsx
-├── hooks/
-│   ├── use-mobile.tsx
-│   └── use-toast.ts
+│   └── ui/                   # UI components
 ├── lib/
+│   ├── db.ts                 # Database client setup
 │   └── utils.ts
+├── postgres/                 # PostgreSQL configuration
+│   ├── init/
+│   │   └── 01-init.sql      # Database initialization
+│   ├── migrations/          # Database migrations
+│   └── schemas/             # Schema documentation
+├── prisma/
+│   └── schema.prisma        # Prisma schema
 ├── public/
-├── styles/
-│   └── globals.css
-└── utils/
-    ├── colors.ts
-    └── theme.ts
+│   └── media/              # Public media files for blog/projects
+└── [other configuration files]
+```
+
+## New Features
+
+### 1. Content Management
+- **Markdown-based Content**: Blog posts and projects are now managed through markdown files
+- **Image Handling**: Images are stored in `public/media/` and referenced in markdown
+- **Rich Content Support**: Full markdown support including tables, code blocks, and images
+
+### 2. View Analytics System
+- **Database Structure**:
+  ```sql
+  post_views:
+  - Tracks individual views
+  - Stores IP addresses
+  - Records user agent info
+  - Captures geographic data
+  - Stores device information
+
+  post_view_counts:
+  - Aggregates view statistics
+  - Maintains unique visitor counts
+  - Updates automatically via triggers
+  ```
+
+- **API Endpoints**:
+  - `POST /api/views`: Record new views
+  - `GET /api/views`: Get all post view counts
+  - `GET /api/views/[slug]`: Get detailed analytics for a post
+
+### 3. Content Creation Guidelines
+
+#### Blog Posts
+```markdown
+---
+title: "Your Blog Title"
+date: "YYYY-MM-DD"
+location: "Location"
+subtitle: "Your Subtitle"
+views: 0
+---
+
+# Content Title
+
+Your content here...
+
+![Image Description](/media/your-image.jpg)
+*Image caption*
+
+## Sections
+...
+```
+
+#### Projects
+```markdown
+---
+title: "Project Title"
+context: "Project Context"
+imageSrc: "/media/project-image.jpg"
+---
+
+# Project Description
+
+Project content here...
+```
+
+### 4. Database Features
+- Automatic view counting
+- IP tracking and analytics
+- User agent parsing
+- Geographic data collection
+- Aggregated statistics
+- Real-time updates
+
+### 5. Docker Configuration
+- PostgreSQL database service
+- Volume persistence
+- Automatic initialization
+- Development environment setup
+
+## Usage Notes
+
+### Adding New Content
+1. Create markdown file in appropriate directory
+2. Add images to `public/media/`
+3. Reference images using relative paths
+4. Views are automatically tracked
+
+### View Analytics
+- Views are counted when users reach the bottom of posts
+- IP addresses are stored for unique visitor tracking
+- Geographic and device information is automatically captured
+- Real-time statistics are available through API endpoints
+
+### Development Setup
+1. Start services:
+   ```bash
+   docker-compose up -d
+   ```
+2. Database is automatically initialized
+3. Content is served with analytics tracking
+
+### Environment Variables
+```env
+DATABASE_URL=postgresql://user:password@localhost:5432/blog_analytics
+POSTGRES_USER=blog_user
+POSTGRES_PASSWORD=blog_password
+POSTGRES_DB=blog_analytics
+```
+
 Detailed Breakdown with Editing Guidelines
 1. Root Files
 components.json
@@ -107,7 +172,7 @@ Editing Tip: Use as a starting point if you want to experiment with rendering di
 
 postcss.config.mjs & tailwind.config.ts
 Purpose: Configure PostCSS and Tailwind CSS—these files define where Tailwind should look for classes and customize the theme (colors, animations, etc.).
-Editing Tip: Edit these files to extend or adjust your UI’s design tokens (e.g., custom colors or spacing).
+Editing Tip: Edit these files to extend or adjust your UI's design tokens (e.g., custom colors or spacing).
 
 tsconfig.json & types.ts
 Purpose: Configure TypeScript settings and define additional types.
@@ -164,7 +229,7 @@ Examples: accordion.tsx, alert-dialog.tsx, avatar.tsx, badge.tsx, breadcrumb.tsx
 Purpose: Each file encapsulates a specific UI element (e.g., an accordion, a dialog, a button variant).
 Editing Tip:
 To change the styling, update the Tailwind classes or the variants defined via class variance authority (cva).
-To adjust behavior (e.g., animations or responsive interactions), review the component’s props and Radix UI usage.
+To adjust behavior (e.g., animations or responsive interactions), review the component's props and Radix UI usage.
 Custom Components:
 calendar.tsx, carousel.tsx, chart.tsx: These often combine third-party libraries with custom styling. Adjust the class names and component props as needed.
 form.tsx: Integrates react-hook-form for managing form state; update field layouts or error displays here.
@@ -178,7 +243,7 @@ Purpose: Custom hook to detect mobile view (based on window width).
 Editing Tip: Adjust the breakpoint value if needed.
 
 use-toast.ts
-Purpose: Manages toast notifications’ state (adding, dismissing, updating toasts).
+Purpose: Manages toast notifications' state (adding, dismissing, updating toasts).
 Editing Tip: Modify the logic if you need different toast behavior or timeouts.
 
 5. Lib Directory (lib/)
@@ -188,7 +253,7 @@ Editing Tip: This is the place to adjust how classes are merged or to add additi
 6. Styles and Utils Directories
 styles/globals.css
 Purpose: Additional global styles (applied as fallback or extended base styles).
-Editing Tip: Modify for broad, cross-cutting UI changes not handled by Tailwind’s config.
+Editing Tip: Modify for broad, cross-cutting UI changes not handled by Tailwind's config.
 
 utils/colors.ts
 Purpose: Defines specific color values (for example, bubbleColors for different sections like chat or projects).
@@ -196,7 +261,7 @@ Editing Tip: Change these values to update the color theme for related UI parts.
 
 utils/theme.ts
 Purpose: Provides a theme object (background, button colors, text colors, etc.).
-Editing Tip: Update these to modify the overall look and feel of your application’s UI.
+Editing Tip: Update these to modify the overall look and feel of your application's UI.
 
 How to Use This Guide for Future UI Changes
 High-Level Changes:

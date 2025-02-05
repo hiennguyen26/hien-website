@@ -1,0 +1,37 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model PostView {
+  id             String    @id @default(uuid())
+  postSlug       String
+  ipAddress      String
+  userAgent      String?
+  viewedAt       DateTime  @default(now())
+  isCompleteView Boolean   @default(true)
+  countryCode    String?   @db.VarChar(2)
+  city           String?   @db.VarChar(100)
+  browser        String?   @db.VarChar(100)
+  os             String?   @db.VarChar(100)
+  device         String?   @db.VarChar(100)
+
+  @@map("post_views")
+  @@index([postSlug])
+  @@index([ipAddress])
+  @@index([viewedAt])
+  @@index([countryCode])
+}
+
+model PostViewCount {
+  postSlug    String   @id
+  totalViews  BigInt   @default(0)
+  uniqueIps   BigInt   @default(0)
+  lastUpdated DateTime @updatedAt
+
+  @@map("post_view_counts")
+} 

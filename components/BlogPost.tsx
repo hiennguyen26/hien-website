@@ -1,5 +1,6 @@
-import { useState } from "react"
+import { useState, useEffect, useRef } from "react"
 import { Heart } from "lucide-react"
+import Image from "next/image"
 
 interface BlogPostProps {
   title: string
@@ -12,6 +13,28 @@ interface BlogPostProps {
 
 export default function BlogPost({ title, date, location, subtitle, body, views }: BlogPostProps) {
   const [likes, setLikes] = useState(0)
+  const contentRef = useRef<HTMLDivElement>(null)
+
+  // Replace img tags with Next.js Image components after render
+  useEffect(() => {
+    if (contentRef.current) {
+      const imgElements = contentRef.current.getElementsByTagName('img')
+      Array.from(imgElements).forEach((img) => {
+        const parent = img.parentElement
+        if (parent && !parent.classList.contains('next-image-wrapper')) {
+          const wrapper = document.createElement('div')
+          wrapper.className = 'next-image-wrapper relative w-full h-[600px] my-8'
+          parent.insertBefore(wrapper, img)
+          wrapper.appendChild(img)
+          img.className = 'object-contain'
+          img.style.width = '100%'
+          img.style.height = '100%'
+          img.style.position = 'absolute'
+          img.style.inset = '0'
+        }
+      })
+    }
+  }, [body])
 
   return (
     <div className="bg-[#1a1a1a] rounded-lg p-6 mb-6">
@@ -20,7 +43,11 @@ export default function BlogPost({ title, date, location, subtitle, body, views 
         {date} • {location}
       </p>
       <h3 className="text-lg font-semibold mb-4">{subtitle}</h3>
-      <p className="mb-4">{body}</p>
+      <div 
+        ref={contentRef}
+        className="prose prose-invert max-w-none mb-4 prose-img:rounded-lg prose-img:w-full prose-img:my-8"
+        dangerouslySetInnerHTML={{ __html: body }}
+      />
       <div className="flex items-center justify-between">
         <button
           onClick={() => setLikes(likes + 1)}

@@ -11,11 +11,11 @@ RUN bun install --frozen-lockfile
 # Copy the rest of your source code
 COPY . .
 
-# Build the application (if you have a build script; remove if not needed)
-RUN bun run build
+# Generate Prisma client
+RUN bunx prisma generate
 
 # Expose the port your app uses (e.g., 3000)
 EXPOSE 3000
 
-# Start the app (adjust the command if your start script has a different name)
+# Start the app in development mode
 CMD [ "bun", "run", "dev" ]

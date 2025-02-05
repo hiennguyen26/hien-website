@@ -11,6 +11,35 @@ services:
         target: /app
       - /app/node_modules
     environment:
-      - NODE_ENV=development
-    tty: true
-    stdin_open: true
+      - DATABASE_URL=postgresql://blog_user:blog_password@db:5432/blog_analytics
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: blog_user
+      POSTGRES_PASSWORD: blog_password
+      POSTGRES_DB: blog_analytics
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d
+    ports:
+      - "5435:5432"  # Changed from 5434 to 5435 to avoid port conflict
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: website_pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@website.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5052:80"
+    depends_on:
+      - db
+    volumes:
+      - pgadmin_data_for_website:/var/lib/pgadmin
+
+volumes:
+  postgres_data:
+  pgadmin_data_for_website:

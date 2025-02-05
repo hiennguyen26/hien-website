@@ -15,11 +15,33 @@ const nextConfig = {
   },
   images: {
     unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
   },
   experimental: {
     webpackBuildWorker: true,
     parallelServerBuildTraces: true,
     parallelServerCompiles: true,
+  },
+  webpack: (config) => {
+    config.module.rules.push({
+      test: /\.md$/,
+      use: 'raw-loader',
+    });
+    return config;
+  },
+  // Serve images from the correct path
+  async rewrites() {
+    return [
+      {
+        source: '/components/content/:path*',
+        destination: '/public/components/content/:path*',
+      },
+    ];
   },
 }
 
