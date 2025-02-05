@@ -1,0 +1,16 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    ports:
+      - "3003:3000"  # Maps host port 3003 to container port 3000
+    volumes:
+      - type: bind
+        source: .
+        target: /app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    tty: true
+    stdin_open: true
